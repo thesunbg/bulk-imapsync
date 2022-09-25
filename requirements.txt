@@ -3,3 +3,5 @@ colorama
 textwrap
 pyfiglet
 tabulate
+xlrd == 1.2.0
+openpyxl
