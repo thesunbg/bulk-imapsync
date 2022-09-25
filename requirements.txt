@@ -1,0 +1,5 @@
+pandas
+colorama
+textwrap
+pyfiglet
+tabulate
