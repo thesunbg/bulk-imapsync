@@ -1,6 +1,6 @@
 pandas
 colorama
-textwrap
+textwrap3
 pyfiglet
 tabulate
 xlrd == 1.2.0
