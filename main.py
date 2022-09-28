@@ -169,7 +169,7 @@ def main():
     1. Show accounts
     2. Check login
     3. Sync accounts
-    4. Show log files
+    4. Show log file
     """)
     menu_selected = input("Select tools: ")
     if menu_selected == '0':

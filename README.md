@@ -1,5 +1,10 @@
 <h1 align="center">Bulk Imapsync Tools</h1>
 
+# Requirements
+Install imapsync service (https://github.com/imapsync/imapsync)
+
+Run install_OS.sh  to install requirements
+
 # Installation
 ```git clone https://github.com/thesunbg/bulk-imapsync.git```
 
