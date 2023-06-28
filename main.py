@@ -101,18 +101,18 @@ def sync(accounts):
             print(f"Syncing {account['from_user']} -> {account['to_user']} ...")
             print(f"imapsync --host1 {account['from_host']} --user1 {account['from_user']} --password1 '{account['from_password']}'\
                 --host2 {account['to_host']} --user2 {account['to_user']} --password2 '{account['to_password']}'")
-            result = readcmd(f"imapsync --host1 {account['from_host']} --user1 {account['from_user']} --password1 '{account['from_password']}'\
+            os.system(f"imapsync --host1 {account['from_host']} --user1 {account['from_user']} --password1 '{account['from_password']}'\
                 --host2 {account['to_host']} --user2 {account['to_user']} --password2 '{account['to_password']}'")
-            error_message = []
-            for line in result.split('\n'): 
-                if ": Host1 failure:" in line:
-                    error_message.append(line)
-                elif ": Host2 failure:" in line:
-                    error_message.append(line)
-            if len(error_message) > 0:
-                response.append([index, account["from_user"], account["to_user"], "error", '\n'.join(textwrap.wrap('\n'.join(error_message)))])
-            else:
-                response.append([index, account["from_user"], account["to_user"], "success", ""])
+            # error_message = []
+            # for line in result.split('\n'): 
+            #     if ": Host1 failure:" in line:
+            #         error_message.append(line)
+            #     elif ": Host2 failure:" in line:
+            #         error_message.append(line)
+            # if len(error_message) > 0:
+            #     response.append([index, account["from_user"], account["to_user"], "error", '\n'.join(textwrap.wrap('\n'.join(error_message)))])
+            # else:
+            #     response.append([index, account["from_user"], account["to_user"], "success", ""])
         except Exception as e:
             response.append([index, account["from_user"], account["to_user"], "error", e])
     print(colorama.Fore.LIGHTYELLOW_EX)
