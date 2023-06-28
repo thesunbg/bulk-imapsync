@@ -99,10 +99,10 @@ def sync(accounts):
             if fromIndex > index or toIndex < index:
                 continue;
             print(f"Syncing {account['from_user']} -> {account['to_user']} ...")
-            print(f"imapsync --host1 {account['from_host']} --user1 {account['from_user']} --password1 {account['from_password']}\
-                --host2 {account['to_host']} --user2 {account['to_user']} --password2 {account['to_password']}")
-            result = readcmd(f"imapsync --host1 {account['from_host']} --user1 {account['from_user']} --password1 {account['from_password']}\
-                --host2 {account['to_host']} --user2 {account['to_user']} --password2 {account['to_password']}")
+            print(f"imapsync --host1 {account['from_host']} --user1 {account['from_user']} --password1 '{account['from_password']}'\
+                --host2 {account['to_host']} --user2 {account['to_user']} --password2 '{account['to_password']}'")
+            result = readcmd(f"imapsync --host1 {account['from_host']} --user1 {account['from_user']} --password1 '{account['from_password']}'\
+                --host2 {account['to_host']} --user2 {account['to_user']} --password2 '{account['to_password']}'")
             error_message = []
             for line in result.split('\n'): 
                 if ": Host1 failure:" in line:
