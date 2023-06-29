@@ -1,6 +1,6 @@
 from flask import Flask
 from flask import request, jsonify
-import os
+import os, tempfile
 
 app = Flask(__name__)
 
@@ -97,6 +97,29 @@ def deletealllogs():
         return jsonify(status = "success"), 200
     except:
         return jsonify(status = "success"), 200
+
+#view all imapsync process
+@app.route('/imapsyncprocess', methods = ['GET'])
+def imapsyncprocess():
+    try:
+        data = readcmd('ps -ef | grep imapsync')
+        return jsonify(status = "success", data = data), 200
+    except:
+        return jsonify(status = "success"), 200
+
+def readcmd(cmd):
+    ftmp = tempfile.NamedTemporaryFile(suffix='.out', prefix='tmp', delete=False)
+    fpath = ftmp.name
+    if os.name=="nt":
+        fpath = fpath.replace("/","\\") # forwin
+    ftmp.close()
+    os.system(cmd + " > " + fpath)
+    data = ""
+    with open(fpath, 'r') as file:
+        data = file.read()
+        file.close()
+    os.remove(fpath)
+    return data
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0")
