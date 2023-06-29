@@ -107,6 +107,18 @@ def imapsyncprocess():
     except:
         return jsonify(status = "success"), 200
 
+#Kill imapsync process
+@app.route('/killimapsyncprocess', methods = ['POST'])
+def killimapsyncprocess():
+    process_id = request.json.get('process_id')
+    if(process_id == None):
+        return jsonify(status = 'error', message= 'process_id required'), 500
+    try:
+        data = readcmd('kill -9 ' + process_id)
+        return jsonify(status = "success", data = data), 200
+    except:
+        return jsonify(status = "success"), 200
+
 def readcmd(cmd):
     ftmp = tempfile.NamedTemporaryFile(suffix='.out', prefix='tmp', delete=False)
     fpath = ftmp.name
