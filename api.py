@@ -1,6 +1,7 @@
 from flask import Flask
 from flask import request, jsonify
 import os, tempfile
+import signal
 
 app = Flask(__name__)
 
@@ -114,8 +115,9 @@ def killimapsyncprocess():
     if(process_id == None):
         return jsonify(status = 'error', message= 'process_id required'), 500
     try:
-        data = readcmd('kill -9 ' + process_id)
-        return jsonify(status = "success", data = data), 200
+        os.kill(process_id, signal.SIGTERM)
+        # os.system('kill -9 ' + process_id + ' && ps -ef | grep imapsync')
+        return jsonify(status = "success", message = "killed"), 200
     except:
         return jsonify(status = "success"), 200
 
