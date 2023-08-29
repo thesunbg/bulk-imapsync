@@ -66,11 +66,11 @@ USER root
 WORKDIR /srv
 RUN apt update
 RUN apt install -y software-properties-common
-RUN add-apt-repository ppa:deadsnakes/ppa
-RUN apt-get install -y python3.9
-RUN apt-get install -y pip
-RUN pip install --upgrade pip
-RUN pip install flask
+# RUN add-apt-repository ppa:deadsnakes/ppa
+RUN apt-get install -y python3-launchpadlib
+RUN apt-get install -y python3-pip python3-venv
+# RUN pip install --upgrade pip3
+RUN pip install flask --break-system-packages
 COPY . /srv
 ENV FLASK_APP=app
 CMD ["flask","--app", "api", "run", "--host", "0.0.0.0"]

@@ -1,5 +1,6 @@
 from flask import Flask
 from flask import request, jsonify
+from datetime import datetime
 import os, tempfile
 import signal
 
@@ -57,12 +58,14 @@ def sync():
     to_password = request.json.get('to_password')
     if(to_password == None):
         return jsonify(status = 'error', message= 'to_password required'), 500
+    now = datetime.now()
+    logfile = 'sync_' + now.strftime("%-m%d%Y%H%M%S") + '_' + from_host + '_' + from_user + '_' + to_host + '_' + to_user + '.txt'
     command = "imapsync "
     options = request.json.get('options')
     if(options != None):
         command += " " + options
     command += f" --host1 {from_host} --user1 {from_user} --password1 '{from_password}'\
-                --host2 {to_host} --user2 {to_user} --password2 '{to_password}' --log &"
+                --host2 {to_host} --user2 {to_user} --password2 '{to_password}' --log --logfile {logfile} &"
     os.system(command)
     return jsonify(status = "success", command = command), 200
 
@@ -88,17 +91,25 @@ def checklogin():
     to_password = request.json.get('to_password')
     if(to_password == None):
         return jsonify(status = 'error', message= 'to_password required'), 500
+    now = datetime.now()
+    logfile = 'checklogin_' + now.strftime("%-m%d%Y%H%M%S") + '_' + from_host + '_' + from_user + '_' + to_host + '_' + to_user + '.txt'
     command = "imapsync "
     command += f" --host1 {from_host} --user1 {from_user} --password1 '{from_password}'\
-                --host2 {to_host} --user2 {to_user} --password2 '{to_password}' --log --justlogin &"
+                --host2 {to_host} --user2 {to_user} --password2 '{to_password}' --log --logfile {logfile} --justlogin &"
     os.system(command)
     return jsonify(status = "success", command = command), 200
 
 @app.route('/logs', methods = ['POST'])
 def logs():
+    from_host = request.json.get('from_host')
+    if(from_host == None):
+        return jsonify(status = 'error', message= 'from_host required'), 500
     from_user = request.json.get('from_user')
     if(from_user == None):
         return jsonify(status = 'error', message= 'from_user required'), 500
+    to_host = request.json.get('to_host')
+    if(to_host == None):
+        return jsonify(status = 'error', message= 'to_host required'), 500
     to_user = request.json.get('to_user')
     if(to_user == None):
         return jsonify(status = 'error', message= 'to_user required'), 500
@@ -109,10 +120,9 @@ def logs():
         fileIndex = 0
         for file in file_list:
             fileSplit = file.split('_')
-            fileJson["date"] = fileSplit[2] + '/' + fileSplit[1] + '/' + fileSplit[0]\
-                + ' ' + fileSplit[3] + ':'+ fileSplit[4] + ':'+ fileSplit[5]
-            fileJson["fromto"] = fileSplit[7] + ' ' + fileSplit[8]
-            if fileJson["fromto"] == from_user + ' ' + to_user + '.txt':
+            fileJson["date"] = fileSplit[1]
+            fileJson["fromto"] = fileSplit[2] + '_' + fileSplit[3] + '_' + fileSplit[4] + '_' + fileSplit[5]
+            if fileJson["fromto"] == from_host + '_' + from_user + '_' + to_host + '_' + to_user + '.txt':
                 fileIndex = fileIndex + 1
                 response.append([fileIndex, fileJson["date"], file])
         return jsonify(status = "success", file_list = response), 200
@@ -120,11 +130,11 @@ def logs():
         return jsonify(status = "success", file_list = []), 200
 
 # Logs file of a domain and response code
-@app.route('/logsdomainandresponsecode', methods = ['POST'])
-def logsdomainandresponsecode():
-    domain = request.json.get('domain')
-    if(domain == None):
-        return jsonify(status = 'error', message= 'domain required'), 500
+@app.route('/logstohostwithresponsecode', methods = ['POST'])
+def logswithresponsecode():
+    to_host = request.json.get('to_host')
+    if(to_host == None):
+        return jsonify(status = 'error', message= 'to_host required'), 500
     try:
         file_list = os.listdir("/var/tmp/uid_0/LOG_imapsync/")
         response = []
@@ -132,9 +142,7 @@ def logsdomainandresponsecode():
         fileIndex = 0
         for file in file_list:
             fileSplit = file.split('_')
-            fileJson["date"] = fileSplit[2] + '/' + fileSplit[1] + '/' + fileSplit[0]\
-                + ' ' + fileSplit[3] + ':'+ fileSplit[4] + ':'+ fileSplit[5]
-            if '@' + domain in file:
+            if fileSplit[4] == to_host:
                 fileIndex = fileIndex + 1
                 try:
                     data = open("/var/tmp/uid_0/LOG_imapsync/" + file).read()
@@ -195,6 +203,10 @@ def deletealllogs():
 def imapsyncprocess():
     try:
         data = readcmd('ps -ef | grep imapsync')
+        if(request.args.get('type') == 'json'):
+            lines = data.split('\n')
+            del lines[-1]  
+            return jsonify(status = "success", data = lines, total = len(lines)), 200             
         return jsonify(status = "success", data = data), 200
     except:
         return jsonify(status = "success"), 200
