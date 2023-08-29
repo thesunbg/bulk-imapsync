@@ -57,6 +57,7 @@ RUN set -xe \
 USER nobody:nogroup
 
 ENV HOME /var/tmp/
+ENV LANG C.UTF-8
 
 WORKDIR /var/tmp/
 
