@@ -126,8 +126,8 @@ def logs():
                 fileIndex = fileIndex + 1
                 response.append([fileIndex, fileJson["date"], file])
         return jsonify(status = "success", file_list = response), 200
-    except:
-        return jsonify(status = "success", file_list = []), 200
+    except Exception as e:
+        return jsonify(status = "error", file_list = [], message = str(e)), 200
 
 # Logs file of a domain and response code
 @app.route('/logstohostwithresponsecode', methods = ['POST'])
@@ -142,19 +142,20 @@ def logswithresponsecode():
         fileIndex = 0
         for file in file_list:
             fileSplit = file.split('_')
+            fileJson["date"] = fileSplit[1]
             if fileSplit[4] == to_host:
                 fileIndex = fileIndex + 1
                 try:
                     data = open("/var/tmp/uid_0/LOG_imapsync/" + file).read()
                     for code in responseCodes:
                         if(code in data):
-                            fileJson['responseCode'] = code
+                            fileJson["responseCode"] = code
                 except:
-                    fileJson['responseCode'] = 'READ_ERR'
-                response.append([fileIndex, fileJson["date"], file, fileJson['responseCode']])
+                    fileJson["responseCode"] = 'READ_ERR'
+                response.append([fileIndex, fileJson["date"], file, fileJson["responseCode"]])
         return jsonify(status = "success", file_list = response), 200
-    except:
-        return jsonify(status = "success", file_list = []), 200
+    except Exception as e:
+        return jsonify(status = "error", file_list = [], message = str(e)), 200
 
 # View Log file 
 @app.route('/viewlog', methods = ['GET'])
@@ -166,8 +167,8 @@ def viewlog():
             if(code in data):
                 responseCode = code
         return jsonify(status = "success", data = data, responseCode= responseCode), 200
-    except:
-        return jsonify(status = "success", data = ''), 200
+    except Exception as e:
+        return jsonify(status = "error", data = '', message = str(e)), 200
 
 # Delete Log 
 @app.route('/deletelog', methods = ['DELETE'])
@@ -175,8 +176,8 @@ def deletelog():
     try:
         os.remove("/var/tmp/uid_0/LOG_imapsync/" + request.args.get('file_name'))
         return jsonify(status = "success"), 200
-    except:
-        return jsonify(status = "success"), 200
+    except Exception as e:
+        return jsonify(status = "error" , message = str(e)), 200
 
 # Total logs file
 @app.route('/totallogs', methods = ['GET'])
@@ -184,8 +185,8 @@ def totallogs():
     try:
         file_list = os.listdir("/var/tmp/uid_0/LOG_imapsync/")
         return jsonify(status = "success", totalFiles = len(file_list)), 200
-    except:
-        return jsonify(status = "success", totalFiles = 0), 200
+    except Exception as e:
+        return jsonify(status = "error", totalFiles = 0, message = str(e)), 200
 
 # Delete all logs 
 @app.route('/deletealllogs', methods = ['DELETE'])
@@ -195,8 +196,8 @@ def deletealllogs():
         for file in file_list:
             os.remove("/var/tmp/uid_0/LOG_imapsync/" + file)
         return jsonify(status = "success"), 200
-    except:
-        return jsonify(status = "success"), 200
+    except Exception as e:
+        return jsonify(status = "error", message = str(e)), 200
 
 #view all imapsync process
 @app.route('/imapsyncprocess', methods = ['GET'])
@@ -208,8 +209,8 @@ def imapsyncprocess():
             del lines[-1]  
             return jsonify(status = "success", data = lines, total = len(lines)), 200             
         return jsonify(status = "success", data = data), 200
-    except:
-        return jsonify(status = "success"), 200
+    except Exception as e:
+        return jsonify(status = "error", message = str(e)), 200
 
 #Kill imapsync process
 @app.route('/killimapsyncprocess', methods = ['POST'])
@@ -222,7 +223,7 @@ def killimapsyncprocess():
         # os.system('kill -9 ' + process_id + ' && ps -ef | grep imapsync')
         return jsonify(status = "success", message = "killed"), 200
     except Exception as e:
-        return jsonify(status = "error", message = e), 200
+        return jsonify(status = "error", message = str(e)), 200
 
 def readcmd(cmd):
     ftmp = tempfile.NamedTemporaryFile(suffix='.out', prefix='tmp', delete=False)
