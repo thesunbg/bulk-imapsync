@@ -43,6 +43,16 @@ RUN set -xe && \
   && rm -rf /var/lib/apt/lists/* \
   && cpanm IO::Socket::SSL
 
+RUN apt install locales && \
+    sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
+    echo 'LANG="en_US.UTF-8"'>/etc/default/locale && \
+    dpkg-reconfigure --frontend=noninteractive locales && \
+    update-locale LANG=en_US.UTF-8
+
+ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US.UTF-8
+ENV LC_ALL en_US.UTF-8
+
 # I added the IO::Socket::SSL update to avoid the annoying, confusing and useless warning
 # DEBUG: .../IO/Socket/SSL.pm:1177: global error: Undefined SSL object
 
@@ -57,7 +67,6 @@ RUN set -xe \
 USER nobody:nogroup
 
 ENV HOME /var/tmp/
-ENV LANG C.UTF-8
 
 WORKDIR /var/tmp/
 
