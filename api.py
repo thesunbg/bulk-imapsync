@@ -142,6 +142,7 @@ def logswithresponsecode():
         fileIndex = 0
         for file in file_list:
             fileSplit = file.split('_')
+            fileJson["responseCode"] = ''
             fileJson["date"] = fileSplit[1]
             if fileSplit[4] == to_host:
                 fileIndex = fileIndex + 1
