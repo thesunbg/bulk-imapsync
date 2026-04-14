@@ -142,17 +142,24 @@ def logswithresponsecode():
         fileIndex = 0
         for file in file_list:
             fileSplit = file.split('_')
+        
+            if len(fileSplit) < 5:
+                continue
+        
+            fileJson = {}
             fileJson["responseCode"] = ''
             fileJson["date"] = fileSplit[1]
+        
             if fileSplit[4] == to_host:
-                fileIndex = fileIndex + 1
+                fileIndex += 1
                 try:
                     data = open("/var/tmp/uid_0/LOG_imapsync/" + file).read()
                     for code in responseCodes:
-                        if(code in data):
+                        if code in data:
                             fileJson["responseCode"] = code
                 except:
                     fileJson["responseCode"] = 'READ_ERR'
+        
                 response.append([fileIndex, fileJson["date"], file, fileJson["responseCode"]])
         return jsonify(status = "success", file_list = response), 200
     except Exception as e:
